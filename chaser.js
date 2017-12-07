@@ -39,7 +39,7 @@ class Player extends Sprite {
   }
 }
 
-let player = new Player(250, 150, 15, "lemonchiffon", 0.07);
+let player = new Player(canvas.width/2, canvas.height/2, 15, "darkgreen", 0.07);
 
 class Enemy extends Sprite {
   constructor(x, y, radius, color, speed) {
@@ -48,34 +48,32 @@ class Enemy extends Sprite {
   }
 }
 
-function createNewEnemy(){
-  let enemiesArray = [];
-}
-
-let randomEnemyStartPosition = 1 + 800 * Math.random();
 let enemies = [
   new Enemy(
-    randomEnemyStartPosition,
-    randomEnemyStartPosition,
-    20,
-    "rgba(250, 0, 50, 0.8)",
+    0,
+    canvas.height,
+    15,
+    "brown",
     0.05
   ),
   new Enemy(
-    randomEnemyStartPosition,
-    randomEnemyStartPosition,
-    18,
-    "rgba(200, 100, 0, 0.7)",
+    canvas.width,
+    0,
+    15,
+    "brown",
     0.03
   ),
   new Enemy(
-    1 + 800 * Math.random(),
-    1 + 800 * Math.random(),
-    22,
-    "rgba(50, 10, 70, 0.5)",
+    canvas.width,
+    canvas.height,
+    15,
+    "brown",
     0.01
   )
 ];
+function createNewEnemy(){
+  enemies.push(new Enemy(800*Math.random(), 800*Math.random(), 15, "brown", 0.06 * Math.random()));
+}
 
 let mouse = { x: 0, y: 0 };
 document.body.addEventListener("mousemove", updateMouse);
@@ -140,8 +138,9 @@ function drawGameOver() {
     gameOverTextXPosition,
     gameOverTextYPosition
   );
+  ctx.font = "32px Brush Script MT"
   ctx.fillText(
-    "(Click to play again)",
+    "(Click where you would like to respawn)",
     gameOverTextXPosition,
     gameOverTextYPosition + 62
   );
@@ -164,6 +163,7 @@ function drawScene() {
 function restartGame() {
   level = 0;
   score = 0;
+  enemies = enemies.slice(0, 3);
   if (progressBar.value === 0) {
     progressBar.value = 100;
     Object.assign(player, { x: canvas.width / 2, y: canvas.height / 2 });
@@ -173,5 +173,6 @@ function restartGame() {
 
 requestAnimationFrame(drawScene);
 setInterval(increaseScore, 5000);
+setInterval(createNewEnemy, 10000);
 
 canvas.addEventListener("click", restartGame);
