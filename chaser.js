@@ -4,6 +4,25 @@ const progressBar = document.querySelector("progress");
 
 let scoreTimer = setInterval(increaseScore, 5000);
 let levelTimer = setInterval(increaseLevel, 50000);
+let enemyCreationTimer = setInterval(createNewEnemy, 10000);
+
+function restartGame() {
+  if (progressBar.value === 0) {
+    level = 1;
+    score = 0;
+    setInterval(increaseScore, 5000);
+    setInterval(increaseLevel, 50000);
+    setInterval(createNewEnemy, 10000);
+    enemies = [
+      new Enemy(0, canvas.height, enemyRadius, enemyColor, 0.065),
+      new Enemy(canvas.width, 0, enemyRadius, enemyColor, 0.03),
+      new Enemy(canvas.width, canvas.height, enemyRadius, enemyColor, 0.01)
+    ];
+    progressBar.value = 100;
+    Object.assign(player, { x: canvas.width / 2, y: canvas.height / 2 });
+    requestAnimationFrame(drawScene);
+  }
+}
 
 let score = 0;
 function drawScore() {
@@ -55,11 +74,24 @@ class Enemy extends Sprite {
     Object.assign(this, { x, y, radius, color, speed });
   }
 }
+let enemyRadius = 15;
+let enemyColor = "brown";
 let enemies = [
-  new Enemy(0, canvas.height, 15, "brown", 0.05),
-  new Enemy(canvas.width, 0, 15, "brown", 0.03),
-  new Enemy(canvas.width, canvas.height, 15, "brown", 0.01)
+  new Enemy(0, canvas.height, enemyRadius, enemyColor, 0.065),
+  new Enemy(canvas.width, 0, enemyRadius, enemyColor, 0.03),
+  new Enemy(canvas.width, canvas.height, enemyRadius, enemyColor, 0.01)
 ];
+function createNewEnemy() {
+  enemies.push(
+    new Enemy(
+      canvas.width * Math.random(),
+      canvas.height * Math.random(),
+      enemyRadius,
+      enemyColor,
+      0.06 * Math.random()
+    )
+  );
+}
 
 let mouse = { x: 0, y: 0 };
 document.body.addEventListener("mousemove", updateMouse);
@@ -77,6 +109,7 @@ function moveToward(leader, follower, speed) {
 function distanceBetween(sprite1, sprite2) {
   return Math.hypot(sprite1.x - sprite2.x, sprite1.y - sprite2.y);
 }
+
 function haveCollided(sprite1, sprite2) {
   return distanceBetween(sprite1, sprite2) < sprite1.radius + sprite2.radius;
 }
@@ -98,9 +131,11 @@ function pushOff(c1, c2) {
 function updateScene() {
   moveToward(mouse, player, player.speed);
   enemies.forEach(enemy => moveToward(player, enemy, enemy.speed));
-  enemies.map((enemy, i) =>
-    pushOff(enemy, enemies[(i + enemies.length-1) % enemies.length])
-  );
+  for (let i = 0; i < enemies.length; i++) {
+    for (let j = i + 1; j < enemies.length; j++) {
+      pushOff(enemies[i], enemies[j]);
+    }
+  }
   enemies.forEach(enemy => {
     if (haveCollided(enemy, player)) {
       progressBar.value -= 1;
@@ -140,22 +175,13 @@ function drawScene() {
   updateScene();
   if (progressBar.value <= 0) {
     drawGameOver();
+    clearInterval(scoreTimer);
+    clearInterval(levelTimer);
+    clearInterval(enemyCreationTimer);
   } else {
     requestAnimationFrame(drawScene);
   }
 }
 
 requestAnimationFrame(drawScene);
-
-function restartGame() {
-  level = 1;
-  score = 0;
-  enemies = enemies.slice(0, 3);
-  if (progressBar.value === 0) {
-    progressBar.value = 100;
-    Object.assign(player, { x: canvas.width / 2, y: canvas.height / 2 });
-    requestAnimationFrame(drawScene);
-  }
-}
-
 canvas.addEventListener("click", restartGame);
