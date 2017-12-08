@@ -4,7 +4,6 @@ const progressBar = document.querySelector("progress");
 
 let scoreTimer = setInterval(increaseScore, 5000);
 let levelTimer = setInterval(increaseLevel, 50000);
-let enemyCreationTimer = setInterval(createNewEnemy, 10000);
 
 let score = 0;
 function drawScore() {
@@ -61,17 +60,6 @@ let enemies = [
   new Enemy(canvas.width, 0, 15, "brown", 0.03),
   new Enemy(canvas.width, canvas.height, 15, "brown", 0.01)
 ];
-function createNewEnemy() {
-  enemies.push(
-    new Enemy(
-      800 * Math.random(),
-      800 * Math.random(),
-      15,
-      "brown",
-      0.06 * Math.random()
-    )
-  );
-}
 
 let mouse = { x: 0, y: 0 };
 document.body.addEventListener("mousemove", updateMouse);
@@ -89,13 +77,8 @@ function moveToward(leader, follower, speed) {
 function distanceBetween(sprite1, sprite2) {
   return Math.hypot(sprite1.x - sprite2.x, sprite1.y - sprite2.y);
 }
-
 function haveCollided(sprite1, sprite2) {
   return distanceBetween(sprite1, sprite2) < sprite1.radius + sprite2.radius;
-}
-
-function preventOverlap(enemy){
-  
 }
 
 function pushOff(c1, c2) {
@@ -136,7 +119,7 @@ function drawGameOver() {
   ctx.font = "54px Brush Script MT";
   ctx.fillStyle = "red";
   ctx.fillText(
-    "YOU HAVE BEEN DEVOURED",
+    "YOU HAVE BEEN CAPTURED",
     gameOverTextXPosition,
     gameOverTextYPosition
   );
