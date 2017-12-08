@@ -10,7 +10,7 @@ let score = 0;
 function drawScore() {
   ctx.font = "32px Brush Script MT";
   ctx.fillStyle = "#ffffff";
-  ctx.fillText(`Score: ${score}`, canvas.width/50, canvas.height/40);
+  ctx.fillText(`Score: ${score}`, canvas.width / 50, canvas.height / 40);
 }
 function increaseScore() {
   score += 5;
@@ -20,7 +20,7 @@ let level = 1;
 function drawLevel() {
   ctx.font = "32px Brush Script MT";
   ctx.fillStyle = "#ffffff";
-  ctx.fillText(`Level: ${level}`, 9*canvas.width/10, canvas.height/40);
+  ctx.fillText(`Level: ${level}`, 9 * canvas.width / 10, canvas.height / 40);
 }
 function increaseLevel() {
   level += 1;
@@ -42,7 +42,13 @@ class Player extends Sprite {
     Object.assign(this, { x, y, radius, color, speed });
   }
 }
-let player = new Player(canvas.width/2, canvas.height/2, 15, "darkgreen", 0.07);
+let player = new Player(
+  canvas.width / 2,
+  canvas.height / 2,
+  15,
+  "darkgreen",
+  0.07
+);
 
 class Enemy extends Sprite {
   constructor(x, y, radius, color, speed) {
@@ -51,30 +57,20 @@ class Enemy extends Sprite {
   }
 }
 let enemies = [
-  new Enemy(
-    0,
-    canvas.height,
-    15,
-    "brown",
-    0.05
-  ),
-  new Enemy(
-    canvas.width,
-    0,
-    15,
-    "brown",
-    0.03
-  ),
-  new Enemy(
-    canvas.width,
-    canvas.height,
-    15,
-    "brown",
-    0.01
-  )
+  new Enemy(0, canvas.height, 15, "brown", 0.05),
+  new Enemy(canvas.width, 0, 15, "brown", 0.03),
+  new Enemy(canvas.width, canvas.height, 15, "brown", 0.01)
 ];
-function createNewEnemy(){
-  enemies.push(new Enemy(800*Math.random(), 800*Math.random(), 15, "brown", 0.06 * Math.random()));
+function createNewEnemy() {
+  enemies.push(
+    new Enemy(
+      800 * Math.random(),
+      800 * Math.random(),
+      15,
+      "brown",
+      0.06 * Math.random()
+    )
+  );
 }
 
 let mouse = { x: 0, y: 0 };
@@ -98,6 +94,10 @@ function haveCollided(sprite1, sprite2) {
   return distanceBetween(sprite1, sprite2) < sprite1.radius + sprite2.radius;
 }
 
+function preventOverlap(enemy){
+  
+}
+
 function pushOff(c1, c2) {
   let [dx, dy] = [c2.x - c1.x, c2.y - c1.y];
   const L = Math.hypot(dx, dy);
@@ -115,8 +115,8 @@ function pushOff(c1, c2) {
 function updateScene() {
   moveToward(mouse, player, player.speed);
   enemies.forEach(enemy => moveToward(player, enemy, enemy.speed));
-  enemies.forEach((enemy, i) =>
-    pushOff(enemy, enemies[(i + 1) % enemies.length])
+  enemies.map((enemy, i) =>
+    pushOff(enemy, enemies[(i + enemies.length-1) % enemies.length])
   );
   enemies.forEach(enemy => {
     if (haveCollided(enemy, player)) {
@@ -140,7 +140,7 @@ function drawGameOver() {
     gameOverTextXPosition,
     gameOverTextYPosition
   );
-  ctx.font = "32px Brush Script MT"
+  ctx.font = "32px Brush Script MT";
   ctx.fillText(
     "(Click where you would like to respawn)",
     gameOverTextXPosition,
@@ -157,9 +157,6 @@ function drawScene() {
   updateScene();
   if (progressBar.value <= 0) {
     drawGameOver();
-    clearInterval(scoreTimer);
-    clearInterval(levelTimer);
-    clearInterval(enemyCreationTimer);
   } else {
     requestAnimationFrame(drawScene);
   }
@@ -170,9 +167,6 @@ requestAnimationFrame(drawScene);
 function restartGame() {
   level = 1;
   score = 0;
-  setInterval(increaseScore, 5000);
-  setInterval(increaseLevel, 50000);
-  setInterval(createNewEnemy, 10000);
   enemies = enemies.slice(0, 3);
   if (progressBar.value === 0) {
     progressBar.value = 100;
